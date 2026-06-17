@@ -33,7 +33,7 @@ def main():
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     model_name = args.model
     if model_name == 'finetuned':
-        model_path = os.path.join(project_root, "model", "finetuned_model_dextra_roshambo.tflite")
+        model_path = os.path.join(project_root, "model", "finetuned_model_dextra_roshambo_new.tflite")
     else:
         model_path = os.path.join(project_root, "model", "dextra_roshambo.tflite")
 
@@ -74,9 +74,7 @@ def main():
         if os.path.exists(img_path):
             winning_imgs[move] = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
 
-    #clock = pygame.time.Clock() # To keep 30 FSP constant
 
-    # if CAMERA_ON:
     f_csv = None
     f_txt = None
     if recording:
@@ -105,18 +103,7 @@ def main():
     if recording:
         f_csv.close()
         f_txt.close()
-    # else:
-    #     run_offline_mode(
-    #         camera_name = 'DAVIS Live',
-    #         screen=screen,
-    #         interpreter=interpreter,
-    #         input_details=input_details,
-    #         output_details=output_details,
-    #         voter=voter,
-    #         winning_imgs=winning_imgs,
-    #         SCREEN_W=SCREEN_W,
-    #         SCREEN_H=SCREEN_H
-    #     )
+
         
     cv2.destroyAllWindows()
 

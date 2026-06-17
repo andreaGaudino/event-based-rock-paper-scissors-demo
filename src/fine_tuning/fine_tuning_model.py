@@ -8,8 +8,9 @@ here = os.path.dirname(__file__)
 parent = os.path.abspath(os.path.join(here, ".."))
 if parent not in sys.path:
     sys.path.insert(0, parent)
-from src.utils import PRED_TO_SYMBOL
+from utils import PRED_TO_SYMBOL
 from tqdm.keras import TqdmCallback
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 
 def load_dataset(file_base_path):
@@ -70,8 +71,7 @@ def load_dataset(file_base_path):
     # One-Hot Encoding: transforms label '2' into [0, 0, 1, 0]
     Y_all = tf.keras.utils.to_categorical(Y_all, num_classes=len(class_mapping))
 
-    # Shuffle everything randomly so the neural network doesn't see ordered data
-    X_all, Y_all = shuffle(X_all, Y_all, random_state=42)
+    
     print("Data labeled and shuffled successfully!")
     
     return X_all, Y_all
@@ -80,8 +80,8 @@ def fine_tune(X, y):
 
     print('Starting fine tuning...')
     X, y = shuffle(X, y, random_state=42)
-    # Decide how many original frames to keep (e.g. 20,000 total)
-    NUM_SAMPLES_TO_KEEP = 20000
+    # Decide how many original frames to keep (e.g. 40,000 total)
+    NUM_SAMPLES_TO_KEEP = 100000
 
     X_subset = X[:NUM_SAMPLES_TO_KEEP]
     y_subset = y[:NUM_SAMPLES_TO_KEEP]
@@ -116,7 +116,10 @@ def fine_tune(X, y):
     
     # ESEMPIO: Qui si collega il codice di prima!
     model = tf.keras.models.load_model('model/roshambo.h5')
-    optimizer = tf.keras.optimizers.Adam(learning_rate=0.00001)
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001)
+    # Freeze all layers except the last 2 or 3
+    for layer in model.layers[:-3]:
+        layer.trainable = False
 
     # Compila il modello
     model.compile(
@@ -132,14 +135,21 @@ def fine_tune(X, y):
         restore_best_weights=True
         )
     
+    datagen = ImageDataGenerator(
+        rotation_range=15,      # +/- 15 degrees: teaches it that "vertical" can be a bit tilted
+        width_shift_range=0.1,  # User's hand isn't perfectly centered
+        height_shift_range=0.1, # User's hand is too high/low
+        zoom_range=0.1          # User is slightly closer/further from the camera
+    )
+
     print("Starting fine-tuning...")
 
     history = model.fit(
-        X_train, y_train,
+        datagen.flow(X_train, y_train, batch_size=32),
         validation_data=(X_val, y_val),
-        epochs=10,          # Bastano poche epoche per il fine tuning
-        batch_size=32,      # Numero di immagini per step
-        verbose=0,          # Disabilita il log standard
+        epochs=15,          
+        batch_size=32,      
+        verbose=0,          
         callbacks=[early_stopping, TqdmCallback(verbose=1)]
     )
 
@@ -148,7 +158,7 @@ def fine_tune(X, y):
     # ==========================================
 
     # Save the new Keras model
-    model.save('model/dextra_roshambo_finetuned.h5')
+    model.save('model/dextra_roshambo_finetuned_new.h5')
     print("Keras model saved successfully!")
 
     # Convert the new model to TFLite for the Demo
@@ -156,7 +166,7 @@ def fine_tune(X, y):
     converter = tf.lite.TFLiteConverter.from_keras_model(model)
     tflite_model = converter.convert()
 
-    with open('model/finetuned_model_dextra_roshambo.tflite', 'wb') as f:
+    with open('model/finetuned_model_dextra_roshambo_new.tflite', 'wb') as f:
         f.write(tflite_model)
 
     print("Conversion completed! Replace the file 'finetuned_model_dextra_roshambo.tflite' in your app.")
