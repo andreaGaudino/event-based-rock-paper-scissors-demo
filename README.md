@@ -1,6 +1,8 @@
 # Event-Based Roshambo Demo
 
 This repository contains a desktop-based interactive demo of the "Rock-Paper-Scissors" game using an event camera.
+
+
 <img width="800" alt="dextra-poster-1" src="https://github.com/user-attachments/assets/40027abc-2474-4e91-8186-a11c2b9479df" />
 
 ## Project Overview
