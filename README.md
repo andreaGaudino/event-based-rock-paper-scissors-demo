@@ -109,6 +109,10 @@ If you have a recorded video (option available on the DV software) it is possibl
 
 And it will save frames and all the movements in the `/statistics` folder.
 
+Finally, since a fine-tuning process was made, it is possible to see the difference between the original and the fine-tuned model by using the --model argument, where the choises are finetuned (default) or original:
+### 
+    python main.py --model finetuned
+
 If you wish to quit the execution, press the 'q' key.
 
 ## Acknowledgments
