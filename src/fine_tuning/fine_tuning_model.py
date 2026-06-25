@@ -125,7 +125,7 @@ def fine_tune(X, y):
     model.compile(
         optimizer=optimizer, 
         loss='categorical_crossentropy', 
-        metrics=['accuracy']
+        metrics=['accuracy', 'categorical_crossentropy']
         )
 
     # Optional: stop training if validation loss doesn't improve for 3 epochs
@@ -152,6 +152,16 @@ def fine_tune(X, y):
         verbose=0,          
         callbacks=[early_stopping, TqdmCallback(verbose=1)]
     )
+
+    final_train_loss = history.history['loss'][-1]
+    final_val_loss = history.history['val_loss'][-1]
+    eval_results = model.evaluate(X_val, y_val, verbose=0, return_dict=True)
+
+    print("\nFinal training cross-entropy:", f"{final_train_loss:.4f}")
+    print("Final validation cross-entropy:", f"{final_val_loss:.4f}")
+    print("Validation cross-entropy after restoring best weights:", f"{eval_results['loss']:.4f}")
+    if 'accuracy' in eval_results:
+        print("Validation accuracy after restoring best weights:", f"{eval_results['accuracy']:.4f}")
 
     # ==========================================
     # 5. SAVING AND CONVERSION TO TFLITE
