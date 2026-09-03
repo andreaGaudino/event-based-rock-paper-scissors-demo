@@ -12,7 +12,8 @@ def run_offline_mode(camera_name, screen, interpreter, input_details, output_det
                      voter, winning_imgs, SCREEN_W, SCREEN_H):
     
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    image_paths = sorted(glob.glob(os.path.join(base_dir, "sample_frames", "*.png")))
+    image_paths = sorted(glob.glob(os.path.join(base_dir, "..", "assets", "sample_frames", "*.png")))
+    print(base_dir)
     if not image_paths:
         print("Error: image not found in sample_frames")
         return
@@ -88,6 +89,7 @@ def run_offline_mode(camera_name, screen, interpreter, input_details, output_det
                     screen[y1:y2, x1:x2] = comp.astype(np.uint8)
                 else:
                     # No alpha: attempt a simple chroma-key to ignore uniform background
+                    win = winning_img_resized
                     if win.ndim == 2:
                         win = cv2.cvtColor(win, cv2.COLOR_GRAY2BGR)
                     # take top-left pixel as background sample
@@ -123,7 +125,7 @@ def run_offline_mode(camera_name, screen, interpreter, input_details, output_det
         end = time.time()
 
         prediction_time.append(end-start)
-        key = cv2.waitKey(20) & 0xFF
+        key = cv2.waitKey(30) & 0xFF
         if key == ord('q'):
             running = False
         if cv2.getWindowProperty(camera_name, cv2.WND_PROP_VISIBLE) < 1:

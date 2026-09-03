@@ -22,6 +22,8 @@ def parse_args():
                    help='If set, record statistics to ./statistics')
     p.add_argument("--model", "-m", default = "finetuned", choices=["finetuned", "original"], 
                    help="Choose which model to use: finetuned or original")
+    p.add_argument("--mode", "-o", default = "offline", choices=["offline", "live"],
+                   help="Choose which mode to run: offline (test images) or live (camera input)")
     return p.parse_args()
 
 # --- MAIN GAME LOGIC ---
@@ -87,19 +89,29 @@ def main():
         f_txt = open(os.path.join(stats_dir, f'{file_name}.txt'), 'a')
 
 
-
-    run_reading_camera_live(capture=capture, 
-                            camera_name='DAVIS Live',
-                            screen=screen,
-                            interpreter=interpreter,
-                            input_details=input_details,
-                            output_details=output_details,
-                            voter=voter,
-                            winning_imgs=winning_imgs,
-                            SCREEN_W=SCREEN_W,
-                            SCREEN_H=SCREEN_H,
-                            csv_stats_file = f_csv,
-                            txt_stats_file = f_txt)
+    if args.mode == 'offline':
+        run_offline_mode(screen=screen,
+                     camera_name='DAVIS Live',
+                     interpreter=interpreter,
+                     input_details=input_details,
+                     output_details=output_details,
+                     voter=voter,
+                     winning_imgs=winning_imgs,
+                     SCREEN_W=SCREEN_W,
+                     SCREEN_H=SCREEN_H)
+    else:  
+        run_reading_camera_live(capture=capture, 
+                                camera_name='DAVIS Live',
+                                screen=screen,
+                                interpreter=interpreter,
+                                input_details=input_details,
+                                output_details=output_details,
+                                voter=voter,
+                                winning_imgs=winning_imgs,
+                                SCREEN_W=SCREEN_W,
+                                SCREEN_H=SCREEN_H,
+                                csv_stats_file = f_csv,
+                                txt_stats_file = f_txt)
     if recording:
         f_csv.close()
         f_txt.close()
